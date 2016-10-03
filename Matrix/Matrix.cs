@@ -11,7 +11,7 @@ namespace MatrixLib
         Zero,
         Identity
     }
-    public struct Matrix
+    public struct Matrix : ICloneable
     {
         private float[,] Value { get; set; }
         public int Height { get; }
@@ -98,10 +98,6 @@ namespace MatrixLib
                 return left + (-right);
             }
         }
-        public static float InnerProduct(Matrix left, Matrix right)
-        {
-            return 0;
-        }
         public static Matrix operator *(Matrix left, Matrix right)
         {
             if (left.Width == right.Height)
@@ -125,6 +121,18 @@ namespace MatrixLib
             {
                 throw new InvalidOperationException();
             }
+        }
+        public static Matrix operator *(float left, Matrix right)
+        {
+            Matrix result = new Matrix(right.Height, right.Width);
+            for (int i = 1; i <= result.Height; i++)
+            {
+                for (int j = 1; j <= result.Width; j++)
+                {
+                    result.SetValue(i, j, left * right.GetValue(i, j));
+                }
+            }
+            return result;
         }
         public static Matrix Transpose(Matrix m)
         {
@@ -292,5 +300,18 @@ namespace MatrixLib
             return result;
         }
         #endregion
+        public object Clone()
+        {
+            Matrix result = new Matrix(Height, Width);
+            for (int i = 1; i <= result.Height; i++)
+            {
+                for (int j = 1; j <= result.Width; j++)
+                {
+                    result.SetValue(i, j, GetValue(i, j));
+                }
+            }
+            return result;
+        }
+
     }
 }

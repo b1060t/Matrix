@@ -21,9 +21,9 @@ namespace Test
             m.SetValue(3, 1, 2);
             m.SetValue(3, 2, 2);
             m.SetValue(3, 3, 3);
-            //Console.Write(m.CalInvertible().ToString());
-            Matrix temp = Matrix.CombineByColumn(m, new Matrix(MatrixType.Identity, m.Height)).CalRowEchelonForm();
-            Console.Write(Matrix.SplitByColumn(temp, temp.Width/2).ToString());
+            Console.Write(m.CalInvertible().ToString());
+            //Matrix temp = Matrix.CombineByColumn(m, new Matrix(MatrixType.Identity, m.Height)).CalRowEchelonForm();
+            //Console.Write(Matrix.SplitByColumn(temp, temp.Width/2).ToString());
             Console.ReadLine();
         }
     }

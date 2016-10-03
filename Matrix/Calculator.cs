@@ -10,7 +10,7 @@ namespace MatrixLib
     {
         public static Matrix CalRowEchelonForm(this Matrix m)
         {
-            Matrix result = m;
+            Matrix result = (Matrix)m.Clone();
             int columnPtr = 1;
             for (int rowPtr = 1; rowPtr <= result.Height; rowPtr++)
             {
@@ -45,8 +45,9 @@ namespace MatrixLib
         {
             if (m.IsSingular()) { throw new InvalidOperationException(); }
             Matrix temp = Matrix.CombineByColumn(m, new Matrix(MatrixType.Identity, m.Height)).CalRowEchelonForm();
-            return Matrix.SplitByColumn(temp, m.Width / 2);
+            return Matrix.SplitByColumn(temp, temp.Width / 2);
         }
+
         private static int FindRow(Matrix m, int rowPtr, int columnPtr)
         {
             for (int i = rowPtr; i <= m.Height; i++)
