@@ -50,6 +50,48 @@ namespace Matrix
         {
             return Value[row - 1, column - 1];
         }
+        private void AllRowFunc(int row)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Matrix SwapRow(int rowA, int rowB)
+        {
+            List<float> temp = new List<float>();
+            for (int i = 1; i <= Width; i++)
+            {
+                temp.Add(GetValue(rowA, i));
+                SetValue(rowA, i, GetValue(rowB, i));
+            }
+            for (int i = 1; i <= Width; i++)
+            {
+                SetValue(rowB, i, temp[i - 1]);
+            }
+            return this;
+        }
+        public Matrix MultiplyConstant(int row, float constant)
+        {
+            if (constant==0)
+            {
+                throw new InvalidOperationException();
+            }
+            else
+            {
+                for (int i=1;i<= Width; i++)
+                {
+                    SetValue(row, i, constant * GetValue(row, i));
+                }
+                return this;
+            }
+        }
+        public Matrix PlusRow(int rowA, int rowB, float times)
+        {
+            for (int i = 1; i <= Width; i++)
+            {
+                SetValue(rowA, i, GetValue(rowA, i) + times * GetValue(rowB, i));
+            }
+            return this;
+        }
         #endregion
 
         #region Static Methods
