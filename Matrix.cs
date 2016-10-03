@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Matrix
 {
-    public enum Type
+    public enum MatrixType
     {
         Zero,
         Identity
     }
-    public class Matrix
+    public struct Matrix
     {
         private float[,] Value { get; set; }
         public int Height { get; }
@@ -23,20 +23,157 @@ namespace Matrix
             Height = height;
             Width = width;
         }
-        public Matrix(Type t, int n)
+        public Matrix(MatrixType t, int n)
         {
             Value = new float[n, n];
+            Height = n;
+            Width = n;
             switch (t)
             {
-                case Type.Zero:
+                case MatrixType.Zero:
                     break;
-                case Type.Identity:
+                case MatrixType.Identity:
                     for (int i = 0; i < n; i++)
                     {
                         Value[i, i] = 1;
                     }
                     break;
             }
+        }
+        #endregion
+
+        #region Operator
+        public static bool operator !=(Matrix left, Matrix right)
+        {
+            return !left.Equals(right);
+        }
+        public static bool operator ==(Matrix left, Matrix right)
+        {
+            return left.Equals(right);
+        }
+        public static Matrix operator -(Matrix m)
+        {
+            Matrix result = new Matrix(m.Height, m.Width);
+            for (int i = 1; i <= m.Height; i++)
+            {
+                for (int j = 1; j <= m.Width; j++)
+                {
+                    result.SetValue(i, j, -m.GetValue(i, j));
+                }
+            }
+            return result;
+        }
+        public static Matrix operator +(Matrix left, Matrix right)
+        {
+            if (left.Height!=right.Height || left.Width!=right.Width)
+            { throw new InvalidOperationException(); }
+            else
+            {
+                Matrix result = new Matrix(left.Height, right.Width);
+                for (int i=1;i<=left.Height;i++)
+                {
+                    for (int j=1;j<=left.Width;j++)
+                    {
+                        result.SetValue(i, j, left.GetValue(i, j) + right.GetValue(i, j));
+                    }
+                }
+                return result;
+            }
+        }
+        public static Matrix operator -(Matrix left, Matrix right)
+        {
+            if (left.Height != right.Height || left.Width != right.Width)
+            { throw new InvalidOperationException(); }
+            else
+            {
+                //Matrix result = new Matrix(left.Height, right.Width);
+                //for (int i = 1; i <= left.Height; i++)
+                //{
+                //    for (int j = 1; j <= left.Width; j++)
+                //    {
+                //        result.SetValue(i, j, left.GetValue(i, j) - right.GetValue(i, j));
+                //    }
+                //}
+                //return result;
+                return left + (-right);
+            }
+        }
+        public static float InnerProduct(Matrix left, Matrix right)
+        {
+            return 0;
+        }
+        public static Matrix operator *(Matrix left, Matrix right)
+        {
+            if (left.Width == right.Height)
+            {
+                Matrix result = new Matrix(left.Height, right.Width);
+                for (int i = 1; i <= result.Height; i++)
+                {
+                    for (int j = 1; j <= result.Width; j++)
+                    {
+                        float sum = 0;
+                        for (int s = 1; s <= left.Width; s++)
+                        {
+                            sum += left.GetValue(i, s) * right.GetValue(s, j);
+                        }
+                        result.SetValue(i, j, sum);
+                    }
+                }
+                return result;
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+        public static Matrix Transpose(Matrix m)
+        {
+            Matrix result = new Matrix(m.Width, m.Height);
+            for (int i = 1; i <= result.Height; i++)
+            {
+                for (int j = 1; j <= result.Width; j++)
+                {
+                    result.SetValue(i, j, m.GetValue(j, i));
+                }
+            }
+            return result;
+        }
+        #endregion
+
+        #region Override
+        public override bool Equals(object obj)
+        {
+            Matrix m = (Matrix)obj;
+            if (Height == m.Height && Width == m.Width)
+            {
+                for (int i=1;i<= Height;i++)
+                {
+                    for (int j=1;j<= Width;j++)
+                    {
+                        if (GetValue(i, j)!=m.GetValue(i, j))
+                        { return false; }
+                    }
+                }
+                return true;
+            }
+            else { return false; }
+        }
+        public override string ToString()
+        {
+            string s = "";
+            for (int i = 1; i <= Height; i++)
+            {
+                for (int j = 1; j <= Width; j++)
+                {
+                    s += GetValue(i, j).ToString() + ",";
+                }
+                s += "\r\n";
+            }
+            return s;
+        }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
         #endregion
 
@@ -50,11 +187,22 @@ namespace Matrix
         {
             return Value[row - 1, column - 1];
         }
-        private void AllRowFunc(int row)
+
+        public Matrix Transpose()
         {
-            throw new NotImplementedException();
+            Matrix result = new Matrix(Width, Height);
+            for (int i = 1; i <= result.Height; i++)
+            {
+                for (int j = 1; j <= result.Width; j++)
+                {
+                    result.SetValue(i, j, GetValue(j, i));
+                }
+            }
+            return result;
         }
 
+
+        //Elementary transformation
         public Matrix SwapRow(int rowA, int rowB)
         {
             List<float> temp = new List<float>();
@@ -95,7 +243,7 @@ namespace Matrix
         #endregion
 
         #region Static Methods
-        public static Matrix Combine(Matrix left, Matrix right)
+        public static Matrix CombineByColumn(Matrix left, Matrix right)
         {
             if (left.Height == right.Height)
             {
@@ -120,6 +268,15 @@ namespace Matrix
             {
                 throw new IndexOutOfRangeException();
             }
+        }
+        public static bool IsSymmetric(Matrix m)
+        {
+            return m.Equals(m.Transpose());
+        }
+        public static bool IsSingular(Matrix m)
+        {
+            if (m.Height != m.Width) { throw new InvalidOperationException(); }
+            return !(m.CalRowEchelonForm() == new Matrix(MatrixType.Identity, m.Height));
         }
         #endregion
     }
