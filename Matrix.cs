@@ -201,6 +201,16 @@ namespace Matrix
             return result;
         }
 
+        public bool IsSymmetric()
+        {
+            return Equals(Transpose());
+        }
+        public bool IsSingular()
+        {
+            if (Height != Width) { throw new InvalidOperationException(); }
+            return !(this.CalRowEchelonForm() == new Matrix(MatrixType.Identity, Height));
+        }
+
 
         //Elementary transformation
         public Matrix SwapRow(int rowA, int rowB)
@@ -269,14 +279,17 @@ namespace Matrix
                 throw new IndexOutOfRangeException();
             }
         }
-        public static bool IsSymmetric(Matrix m)
+        public static Matrix SplitByColumn(Matrix m, int final)//return right
         {
-            return m.Equals(m.Transpose());
-        }
-        public static bool IsSingular(Matrix m)
-        {
-            if (m.Height != m.Width) { throw new InvalidOperationException(); }
-            return !(m.CalRowEchelonForm() == new Matrix(MatrixType.Identity, m.Height));
+            Matrix result = new Matrix(m.Height, m.Width - final);
+            for (int i=1;i<=result.Height;i++)
+            {
+                for (int j=1;j<=result.Width;j++)
+                {
+                    result.SetValue(i, j, m.GetValue(i, final + j));
+                }
+            }
+            return result;
         }
         #endregion
     }
